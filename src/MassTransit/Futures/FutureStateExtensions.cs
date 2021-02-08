@@ -172,16 +172,6 @@ namespace MassTransit.Futures
             return false;
         }
 
-        public static bool TryGetVariable<T>(this FutureState future, string key, out T result)
-            where T : class
-        {
-            if (future.HasVariables())
-                return future.Variables.TryGetValue(key, out result);
-
-            result = default;
-            return false;
-        }
-
         public static bool TryGetFault<T>(this FutureState future, Guid id, out T fault)
             where T : class
         {

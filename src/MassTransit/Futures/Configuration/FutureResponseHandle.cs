@@ -1,6 +1,5 @@
 namespace MassTransit.Futures
 {
-    using System.Collections.Generic;
     using Automatonymous;
 
 

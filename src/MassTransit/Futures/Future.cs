@@ -5,6 +5,7 @@ namespace MassTransit.Futures
     using System.Linq;
     using System.Threading.Tasks;
     using Automatonymous;
+    using Automatonymous.Binders;
     using Configurators;
     using Contracts;
     using Courier.Contracts;
@@ -250,7 +251,7 @@ namespace MassTransit.Futures
                 x.ConfigureConsumeTopology = false;
             });
 
-            var routingSlip = new FutureRoutingSlipConfigurator<TCommand, TResult, TFault, TInput>(routingSlipCompleted, routingSlipFaulted);
+            var routingSlip = new FutureRoutingSlipConfigurator<TCommand, TResult, TFault, TInput>(this,routingSlipCompleted, routingSlipFaulted);
 
             configure?.Invoke(routingSlip);
 
@@ -291,6 +292,17 @@ namespace MassTransit.Futures
             where T : class
         {
             CompletePending(requestCompleted, pendingIdProvider);
+        }
+
+        void IFutureStateMachineConfigurator.DuringAnyWhen<T>(Event<T> whenEvent, Func<EventActivityBinder<FutureState, T>,
+            EventActivityBinder<FutureState, T>> configure)
+            where T : class
+        {
+            EventActivityBinder<FutureState, T> binder = When(whenEvent);
+
+            binder = configure?.Invoke(binder) ?? binder;
+
+            DuringAny(binder);
         }
 
         void CompletePending<T>(Event<T> completedEvent, PendingIdProvider<T> pendingIdProvider)

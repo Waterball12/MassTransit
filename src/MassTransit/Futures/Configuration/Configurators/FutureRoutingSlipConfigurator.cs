@@ -5,6 +5,7 @@ namespace MassTransit.Futures.Configurators
     using System.Linq;
     using System.Threading.Tasks;
     using Automatonymous;
+    using Automatonymous.Binders;
     using Courier.Contracts;
     using Endpoints;
     using GreenPipes;
@@ -22,12 +23,15 @@ namespace MassTransit.Futures.Configurators
         where TFault : class
 
     {
+        readonly IFutureStateMachineConfigurator _configurator;
         IRoutingSlipExecutor<TInput> _executor;
         FutureFault<TCommand, TFault, RoutingSlipFaulted> _fault;
         FutureResult<TCommand, RoutingSlipCompleted, TResult> _result;
 
-        public FutureRoutingSlipConfigurator(Event<RoutingSlipCompleted> routingSlipCompleted, Event<RoutingSlipFaulted> routingSlipFaulted)
+        public FutureRoutingSlipConfigurator(IFutureStateMachineConfigurator configurator, Event<RoutingSlipCompleted> routingSlipCompleted,
+            Event<RoutingSlipFaulted> routingSlipFaulted)
         {
+            _configurator = configurator;
             Completed = routingSlipCompleted;
             Faulted = routingSlipFaulted;
 
@@ -58,6 +62,18 @@ namespace MassTransit.Futures.Configurators
             var configurator = new FutureFaultConfigurator<TCommand, TFault, RoutingSlipFaulted>(_fault);
 
             configure?.Invoke(configurator);
+        }
+
+        public void WhenRoutingSlipCompleted(
+            Func<EventActivityBinder<FutureState, RoutingSlipCompleted>, EventActivityBinder<FutureState, RoutingSlipCompleted>> configure)
+        {
+            _configurator.DuringAnyWhen(Completed, configure);
+        }
+
+        public void WhenRoutingSlipFaulted(
+            Func<EventActivityBinder<FutureState, RoutingSlipFaulted>, EventActivityBinder<FutureState, RoutingSlipFaulted>> configure)
+        {
+            _configurator.DuringAnyWhen(Faulted, configure);
         }
 
         public void TrackPendingRoutingSlip()

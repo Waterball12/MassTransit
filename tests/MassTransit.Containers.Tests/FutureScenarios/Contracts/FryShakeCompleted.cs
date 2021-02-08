@@ -6,10 +6,4 @@ namespace MassTransit.Containers.Tests.FutureScenarios.Contracts
         string Flavor { get; }
         Size Size { get; }
     }
-
-
-    public interface ComboCompleted :
-        OrderLineCompleted
-    {
-    }
 }

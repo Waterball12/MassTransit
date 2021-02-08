@@ -1,6 +1,7 @@
 namespace MassTransit.Futures
 {
     using System;
+    using Automatonymous.Binders;
 
 
     public interface IFutureRequestConfigurator<TFault, out TInput, TRequest>
@@ -50,5 +51,11 @@ namespace MassTransit.Futures
         /// </summary>
         /// <param name="configure"></param>
         void OnRequestFaulted(Action<IFutureFaultConfigurator<TFault, Fault<TRequest>>> configure);
+
+        /// <summary>
+        /// Add activities to the state machine that are executed when the request faults
+        /// </summary>
+        /// <param name="configure"></param>
+        void WhenFaulted(Func<EventActivityBinder<FutureState, Fault<TRequest>>, EventActivityBinder<FutureState, Fault<TRequest>>> configure);
     }
 }

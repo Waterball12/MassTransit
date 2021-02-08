@@ -1,6 +1,7 @@
 namespace MassTransit.Futures
 {
     using System;
+    using Automatonymous.Binders;
     using Courier.Contracts;
 
 
@@ -40,5 +41,18 @@ namespace MassTransit.Futures
         /// </summary>
         /// <param name="configure"></param>
         void OnRoutingSlipFaulted(Action<IFutureFaultConfigurator<TFault, RoutingSlipFaulted>> configure);
+
+        /// <summary>
+        /// Add activities to the state machine that are executed when the routing slip is completed
+        /// </summary>
+        /// <param name="configure"></param>
+        void WhenRoutingSlipCompleted(
+            Func<EventActivityBinder<FutureState, RoutingSlipCompleted>, EventActivityBinder<FutureState, RoutingSlipCompleted>> configure);
+
+        /// <summary>
+        /// Add activities to the state machine that are executed when the routing slip is faulted
+        /// </summary>
+        /// <param name="configure"></param>
+        void WhenRoutingSlipFaulted(Func<EventActivityBinder<FutureState, RoutingSlipFaulted>, EventActivityBinder<FutureState, RoutingSlipFaulted>> configure);
     }
 }

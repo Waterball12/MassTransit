@@ -1,6 +1,7 @@
 namespace MassTransit.Registration.Futures
 {
     using Automatonymous;
+    using Conductor;
     using GreenPipes;
     using MassTransit.Futures;
 
@@ -14,6 +15,11 @@ namespace MassTransit.Registration.Futures
             endpointConfigurator.UseScheduledRedelivery(r => r.Intervals(5000, 30000, 120000));
             endpointConfigurator.UseMessageRetry(r => r.Intervals(100, 200, 500));
             endpointConfigurator.UseInMemoryOutbox();
+        }
+
+        public override void Configure(IServiceRegistry registry)
+        {
+            registry.AddFuture(typeof(TFuture));
         }
     }
 }

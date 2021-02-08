@@ -1,7 +1,6 @@
 namespace MassTransit.Definition
 {
     using System;
-    using Registration;
     using Registration.Sagas;
     using Saga;
 
@@ -51,11 +50,6 @@ namespace MassTransit.Definition
                 sagaConfigurator.UseConcurrentMessageLimit(_concurrentMessageLimit.Value);
 
             ConfigureSaga(endpointConfigurator, sagaConfigurator);
-        }
-
-        public void Configure<T>(IReceiveEndpointConfigurator endpointConfigurator, ISagaMessageConfigurator<TSaga, T> sagaMessageConfigurator)
-            where T : class
-        {
         }
 
         Type ISagaDefinition.SagaType => typeof(TSaga);

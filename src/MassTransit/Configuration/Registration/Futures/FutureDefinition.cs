@@ -2,6 +2,7 @@ namespace MassTransit.Registration.Futures
 {
     using System;
     using Automatonymous;
+    using Conductor;
     using MassTransit.Futures;
 
 
@@ -98,6 +99,10 @@ namespace MassTransit.Registration.Futures
         protected virtual void ConfigureSagaMessage<T>(IReceiveEndpointConfigurator endpointConfigurator,
             ISagaMessageConfigurator<FutureState, T> sagaMessageConfigurator)
             where T : class
+        {
+        }
+
+        public virtual void Configure(IServiceRegistry registry)
         {
         }
     }

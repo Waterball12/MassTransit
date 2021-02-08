@@ -1,6 +1,10 @@
 namespace MassTransit.Futures
 {
-    public interface IFutureResponseConfigurator<TResult, out TResponse> :
+    using System;
+    using Automatonymous.Binders;
+
+
+    public interface IFutureResponseConfigurator<TResult, TResponse> :
         IFutureResultConfigurator<TResult, TResponse>
         where TResult : class
         where TResponse : class
@@ -11,5 +15,11 @@ namespace MassTransit.Futures
         /// </summary>
         /// <param name="provider">Provides the identifier from the request</param>
         void CompletePendingRequest(PendingIdProvider<TResponse> provider);
+
+        /// <summary>
+        /// Add activities to the state machine that are executed when the response is received
+        /// </summary>
+        /// <param name="configure"></param>
+        void WhenReceived(Func<EventActivityBinder<FutureState, TResponse>, EventActivityBinder<FutureState, TResponse>> configure);
     }
 }

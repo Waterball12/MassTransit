@@ -3,6 +3,7 @@ namespace MassTransit.Futures
     using System;
     using System.Threading.Tasks;
     using Automatonymous;
+    using Automatonymous.Binders;
 
 
     public interface IFutureStateMachineConfigurator
@@ -35,6 +36,16 @@ namespace MassTransit.Futures
         /// <param name="pendingIdProvider"></param>
         /// <typeparam name="T"></typeparam>
         void CompletePendingRequest<T>(Event<T> requestCompleted, PendingIdProvider<T> pendingIdProvider)
+            where T : class;
+
+        /// <summary>
+        /// Add an event handler to the future
+        /// </summary>
+        /// <param name="whenEvent"></param>
+        /// <param name="configure"></param>
+        /// <typeparam name="T"></typeparam>
+        void DuringAnyWhen<T>(Event<T> whenEvent, Func<EventActivityBinder<FutureState, T>,
+            EventActivityBinder<FutureState, T>> configure)
             where T : class;
     }
 }

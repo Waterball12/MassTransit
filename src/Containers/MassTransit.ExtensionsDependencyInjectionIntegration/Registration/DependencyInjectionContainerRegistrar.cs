@@ -3,8 +3,10 @@ namespace MassTransit.ExtensionsDependencyInjectionIntegration.Registration
     using System;
     using Automatonymous;
     using Clients;
+    using Conductor.Inventory;
     using Definition;
     using Futures;
+    using Internals.Extensions;
     using MassTransit.Registration;
     using MassTransit.Registration.Futures;
     using Mediator;
@@ -32,7 +34,11 @@ namespace MassTransit.ExtensionsDependencyInjectionIntegration.Registration
 
         void IContainerRegistrar.RegisterConsumerDefinition<TDefinition, TConsumer>()
         {
-            _collection.AddTransient<IConsumerDefinition<TConsumer>, TDefinition>();
+            _collection.AddSingleton<TDefinition>();
+            _collection.AddSingleton<IConsumerDefinition<TConsumer>>(provider => provider.GetRequiredService<TDefinition>());
+
+            if (typeof(TDefinition).HasInterface<IConfigureServiceRegistry>())
+                _collection.AddSingleton(provider => (IConfigureServiceRegistry)provider.GetRequiredService<TDefinition>());
         }
 
         void IContainerRegistrar.RegisterSaga<T>()
@@ -108,7 +114,11 @@ namespace MassTransit.ExtensionsDependencyInjectionIntegration.Registration
             where TDefinition : class, IFutureDefinition<TFuture>
             where TFuture : MassTransitStateMachine<FutureState>
         {
-            _collection.AddTransient<IFutureDefinition<TFuture>, TDefinition>();
+            _collection.AddSingleton<TDefinition>();
+            _collection.AddSingleton<IFutureDefinition<TFuture>>(provider => provider.GetRequiredService<TDefinition>());
+
+            if (typeof(TDefinition).HasInterface<IConfigureServiceRegistry>())
+                _collection.AddSingleton(provider => (IConfigureServiceRegistry)provider.GetRequiredService<TDefinition>());
         }
 
         void IContainerRegistrar.RegisterRequestClient<T>(RequestTimeout timeout)

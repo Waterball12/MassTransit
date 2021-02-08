@@ -2,6 +2,7 @@ namespace MassTransit.Registration.Futures
 {
     using System;
     using Automatonymous;
+    using Conductor.Inventory;
     using Definition;
     using MassTransit.Futures;
 
@@ -30,7 +31,8 @@ namespace MassTransit.Registration.Futures
 
 
     public interface IFutureDefinition :
-        IDefinition
+        IDefinition,
+        IConfigureServiceRegistry
     {
         Type FutureType { get; }
 

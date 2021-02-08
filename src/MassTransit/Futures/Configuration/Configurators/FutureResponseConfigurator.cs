@@ -4,6 +4,7 @@ namespace MassTransit.Futures.Configurators
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Automatonymous;
+    using Automatonymous.Binders;
     using Endpoints;
     using GreenPipes;
 
@@ -18,14 +19,16 @@ namespace MassTransit.Futures.Configurators
         where TRequest : class
         where TResponse : class
     {
+        readonly IFutureStateMachineConfigurator _configurator;
         readonly FutureRequestHandle<TCommand, TResult, TFault, TRequest> _request;
         FutureResult<TCommand, TResponse, TResult> _result;
 
-        public FutureResponseConfigurator(Event<TResponse> completed, FutureRequestHandle<TCommand, TResult, TFault, TRequest> request)
+        public FutureResponseConfigurator(IFutureStateMachineConfigurator configurator, FutureRequestHandle<TCommand, TResult, TFault, TRequest> request)
         {
+            _configurator = configurator;
             _request = request;
 
-            Completed = completed;
+            Completed = configurator.CreateResponseEvent<TResponse>();
         }
 
         public PendingIdProvider<TResponse> PendingResponseIdProvider { get; private set; }
@@ -44,6 +47,11 @@ namespace MassTransit.Futures.Configurators
         public void CompletePendingRequest(PendingIdProvider<TResponse> provider)
         {
             PendingResponseIdProvider = provider;
+        }
+
+        public void WhenReceived(Func<EventActivityBinder<FutureState, TResponse>, EventActivityBinder<FutureState, TResponse>> configure)
+        {
+            _configurator.DuringAnyWhen(Completed, configure);
         }
 
         public void SetCompletedUsingFactory(FutureMessageFactory<TResponse, TResult> factoryMethod)
@@ -75,8 +83,7 @@ namespace MassTransit.Futures.Configurators
         {
             _result ??= new FutureResult<TCommand, TResponse, TResult>();
 
-            var configurator = new FutureResultConfigurator<TCommand, TResult, TResponse>(_result);
-            return configurator;
+            return new FutureResultConfigurator<TCommand, TResult, TResponse>(_result);
         }
     }
 }

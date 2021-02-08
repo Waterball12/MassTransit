@@ -5,6 +5,7 @@ namespace MassTransit.Futures.Configurators
     using System.Linq;
     using System.Threading.Tasks;
     using Automatonymous;
+    using Automatonymous.Binders;
     using Endpoints;
     using GreenPipes;
     using GreenPipes.Internals.Extensions;
@@ -24,8 +25,8 @@ namespace MassTransit.Futures.Configurators
         where TRequest : class
     {
         readonly IFutureStateMachineConfigurator _configurator;
+        readonly FutureFault<TCommand, TFault, Fault<TRequest>> _fault;
         RequestAddressProvider<TInput> _addressProvider;
-        FutureFault<TCommand, TFault, Fault<TRequest>> _fault;
         IRequestEndpoint<TInput, TRequest> _requestEndpoint;
 
         public FutureRequestConfigurator(IFutureStateMachineConfigurator configurator, Event<Fault<TRequest>> faulted)
@@ -48,9 +49,7 @@ namespace MassTransit.Futures.Configurators
             OnResponseReceived<TResponse>(Action<IFutureResponseConfigurator<TResult, TResponse>> configure)
             where TResponse : class
         {
-            Event<TResponse> completed = _configurator.CreateResponseEvent<TResponse>();
-
-            var response = new FutureResponseConfigurator<TCommand, TResult, TFault, TRequest, TResponse>(completed, this);
+            var response = new FutureResponseConfigurator<TCommand, TResult, TFault, TRequest, TResponse>(_configurator, this);
 
             configure?.Invoke(response);
 
@@ -111,6 +110,11 @@ namespace MassTransit.Futures.Configurators
             var configurator = new FutureFaultConfigurator<TCommand, TFault, Fault<TRequest>>(_fault);
 
             configure?.Invoke(configurator);
+        }
+
+        public void WhenFaulted(Func<EventActivityBinder<FutureState, Fault<TRequest>>, EventActivityBinder<FutureState, Fault<TRequest>>> configure)
+        {
+            _configurator.DuringAnyWhen(Faulted, configure);
         }
 
         public IEnumerable<ValidationResult> Validate()

@@ -125,7 +125,6 @@ namespace MassTransit.Futures.Internals
         /// </summary>
         /// <param name="binder"></param>
         /// <param name="messageFactory">Should return the result message</param>
-        /// <typeparam name="T">The event type</typeparam>
         /// <typeparam name="TResult">The result type</typeparam>
         /// <returns></returns>
         public static EventActivityBinder<FutureState, RoutingSlipFaulted> SetFault<TResult>(this EventActivityBinder<FutureState, RoutingSlipFaulted> binder,
